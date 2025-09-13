@@ -1,0 +1,6 @@
+{
+  "debug": true,
+  "enabled": true,
+  "devtoolsFrontendUrl": "devtools://devtools/bundled/inspector.html",
+  "webSocketDebuggerUrl": "ws://localhost:9222/devtools/page/{pageId}"
+}

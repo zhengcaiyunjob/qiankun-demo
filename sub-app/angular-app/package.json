@@ -1,0 +1,23 @@
+{
+  "name": "angular-simple-app",
+  "version": "1.0.0",
+  "description": "简单的Angular子应用示例",
+  "scripts": {
+    "build": "mkdir -p dist/angular-simple-app && cp src/*.html dist/angular-simple-app/ && cp src/*.js dist/angular-simple-app/",
+    "start": "npx http-server dist/angular-simple-app -p 7104 --cors",
+    "dev": "npm run build && npm run start"
+  },
+  "dependencies": {
+    "@angular/core": "^16.2.0",
+    "@angular/common": "^16.2.0",
+    "@angular/platform-browser": "^16.2.0",
+    "rxjs": "~7.8.0",
+    "zone.js": "~0.13.0"
+  },
+  "devDependencies": {
+    "typescript": "~5.1.0",
+    "http-server": "^14.1.1",
+    "copyfiles": "^2.4.1",
+    "@types/node": "^18.7.0"
+  }
+}
