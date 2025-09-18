@@ -1,53 +1,47 @@
 <template>
   <div class="about">
     <h3>关于Vue3子应用</h3>
-    <p>这是一个基于Vue3和Vite构建的现代化微前端子应用</p>
-    
-    <div class="info-cards">
-      <div class="info-card">
-        <h4>🔄 开发体验</h4>
-        <ul>
-          <li>极速的HMR热更新</li>
-          <li>TypeScript原生支持</li>
-          <li>现代化的开发工具链</li>
-        </ul>
-      </div>
-      
-      <div class="info-card">
-        <h4>🚀 构建性能</h4>
-        <ul>
-          <li>基于ESBuild的快速构建</li>
-          <li>优化的打包输出</li>
-          <li>Tree-shaking支持</li>
-        </ul>
-      </div>
-      
-      <div class="info-card">
-        <h4>🌐 部署信息</h4>
-        <ul>
-          <li>运行端口: 7102</li>
-          <li>构建工具: Vite 4</li>
-          <li>打包格式: UMD + ES Modules</li>
-        </ul>
-      </div>
-    </div>
+    <p>示例表单（切换页面后内容保留）</p>
 
-    <div class="integration-info">
-      <h4>微前端集成</h4>
-      <p>此应用通过qiankun框架与主应用集成，支持：</p>
-      <ul>
-        <li>独立开发和部署</li>
-        <li>样式隔离和JS沙箱</li>
-        <li>应用间通信</li>
-        <li>路由自动同步</li>
-      </ul>
-    </div>
+    <form class="form-card" @submit.prevent>
+      <div class="form-row">
+        <label for="company">公司</label>
+        <input id="company" v-model="form.company" placeholder="请输入公司" />
+      </div>
+      <div class="form-row">
+        <label for="title">职位</label>
+        <input id="title" v-model="form.title" placeholder="请输入职位" />
+      </div>
+    </form>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'About'
+  name: 'About',
+  data() {
+    return {
+      form: {
+        company: '',
+        title: ''
+      },
+      storageKey: null
+    }
+  },
+  created() {
+    // 不使用本地存储，由主应用缓存实例保持状态
+  },
+  watch: {
+    form: {
+      handler() {
+        // no-op
+      },
+      deep: true
+    }
+  },
+  methods: {
+    
+  }
 }
 </script>
 
@@ -72,61 +66,31 @@ export default {
   margin-bottom: 40px;
 }
 
-.info-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
-  margin-bottom: 40px;
-}
-
-.info-card {
-  background: white;
+.form-card {
+  background: #ffffff;
   padding: 24px;
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  border-left: 4px solid #6366f1;
+  border: 1px solid #e2e8f0;
+  max-width: 520px;
+  margin: 0 auto;
 }
 
-.info-card h4 {
-  margin: 0 0 16px 0;
-  color: #1f2937;
-  font-size: 18px;
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
-.info-card ul {
-  margin: 0;
-  padding-left: 20px;
+.form-row label {
+  width: 80px;
+  color: #374151;
 }
 
-.info-card li {
-  margin: 8px 0;
-  color: #4b5563;
-}
-
-.integration-info {
-  background: #f0f9ff;
-  padding: 24px;
-  border-radius: 12px;
-  border: 1px solid #bae6fd;
-}
-
-.integration-info h4 {
-  margin: 0 0 16px 0;
-  color: #0369a1;
-}
-
-.integration-info p {
-  margin: 0 0 16px 0;
-  color: #0c4a6e;
-}
-
-.integration-info ul {
-  margin: 0;
-  padding-left: 20px;
-  color: #0c4a6e;
-}
-
-.integration-info li {
-  margin: 8px 0;
+.form-row input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
 }
 </style>

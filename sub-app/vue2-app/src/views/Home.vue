@@ -1,31 +1,47 @@
 <template>
   <div class="home">
     <h3>Vue2子应用 - 首页</h3>
-    <p>这是基于Vue2 + Webpack5构建的子应用</p>
-    <div class="features">
-      <div class="feature-card">
-        <h4>技术栈</h4>
-        <ul>
-          <li>Vue 2.7.14</li>
-          <li>Webpack 5</li>
-          <li>Vue Router 3</li>
-        </ul>
+    <p>示例表单（切换页面后内容保留）</p>
+
+    <form class="form-card" @submit.prevent>
+      <div class="form-row">
+        <label for="name">姓名</label>
+        <input id="name" v-model="form.name" placeholder="请输入姓名" />
       </div>
-      <div class="feature-card">
-        <h4>特性</h4>
-        <ul>
-          <li>支持qiankun微前端</li>
-          <li>独立开发部署</li>
-          <li>与主应用无缝集成</li>
-        </ul>
+      <div class="form-row">
+        <label for="email">邮箱</label>
+        <input id="email" v-model="form.email" placeholder="请输入邮箱" />
       </div>
-    </div>
+    </form>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Home'
+  name: 'Home',
+  data() {
+    return {
+      form: {
+        name: '',
+        email: ''
+      },
+      storageKey: null
+    }
+  },
+  created() {
+    // 不使用本地存储，由主应用缓存实例保持状态
+  },
+  watch: {
+    form: {
+      handler() {
+        // no-op
+      },
+      deep: true
+    }
+  },
+  methods: {
+    
+  }
 }
 </script>
 
@@ -41,30 +57,31 @@ export default {
   text-align: center;
 }
 
-.features {
-  display: flex;
-  gap: 20px;
-  margin-top: 30px;
-}
-
-.feature-card {
-  flex: 1;
-  background: #f9f9f9;
+.form-card {
+  background: #ffffff;
   padding: 20px;
   border-radius: 8px;
   border: 1px solid #e0e0e0;
+  max-width: 520px;
+  margin: 0 auto;
 }
 
-.feature-card h4 {
-  margin-top: 0;
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.form-row label {
+  width: 80px;
   color: #2c3e50;
 }
 
-.feature-card ul {
-  padding-left: 20px;
-}
-
-.feature-card li {
-  margin: 8px 0;
+.form-row input {
+  flex: 1;
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
 }
 </style>

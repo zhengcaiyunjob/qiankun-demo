@@ -31,7 +31,11 @@
 
       <!-- 主内容区域 -->
       <main class="app-main">
-        <div id="subapp-viewport"></div>
+        <div id="subapp-viewport">
+          <div id="subapp-vue2" style="display:none"></div>
+          <div id="subapp-vue3" style="display:none"></div>
+          <div id="subapp-angular" style="display:none"></div>
+        </div>
       </main>
     </div>
   </div>
@@ -46,11 +50,25 @@ export default {
   data() {
     return {
       menuItems,
-      currentMicroApp: null,
-
+      appCache: {},
+      currentAppName: ''
     }
   },
-  watch: {},
+  watch: {
+    '$route.path': {
+      handler(newPath) {
+        this.handleRouteChange(newPath)
+      },
+      immediate: false
+    }
+  },
+
+  mounted() {
+    // 等待容器渲染完成后再做首轮路由处理
+    this.$nextTick(() => {
+      this.handleRouteChange(this.$route.path)
+    })
+  },
 
   methods: {
     isActive(path) {
@@ -60,7 +78,15 @@ export default {
       // 确保路径以/开头
       const normalizedPath = path.startsWith('/') ? path : `/${path}`
       console.log('Navigating to:', normalizedPath)
-      this.$router.push(normalizedPath).catch(err => {
+      // 如果当前就是该大类路径下，则不重复 push，避免多次 replaceState
+      if (this.$route.path.startsWith(normalizedPath)) {
+        return
+      }
+      // 清空 hash，避免把子应用的 hash 带到主路由上（如 /vue2#/about -> /vue3#/about）
+      if (window.location.hash) {
+        window.location.hash = ''
+      }
+      this.$router.push({ path: normalizedPath, hash: '' }).catch(err => {
         console.log('Router push error:', err)
       })
     },
@@ -70,6 +96,69 @@ export default {
       alert('退出系统功能')
     },
     
+    async handleRouteChange(path) {
+      const normalizedPath = path.startsWith('/') ? path : `/${path}`
+      const appConfig = microApps.find(app => 
+        normalizedPath === app.activeRule || normalizedPath.startsWith(`${app.activeRule}/`)
+      )
+
+      if (!appConfig) {
+        this.hideAll()
+        this.currentAppName = ''
+        return
+      }
+
+      await this.mountOrShow(appConfig)
+      this.currentAppName = appConfig.name
+    },
+
+    hideAll() {
+      const ids = ['subapp-vue2','subapp-vue3','subapp-angular']
+      ids.forEach(id => {
+        const el = document.getElementById(id)
+        if (el) el.style.display = 'none'
+      })
+    },
+
+    async mountOrShow(appConfig) {
+      const idMap = {
+        'vue2-app': 'subapp-vue2',
+        'vue3-app': 'subapp-vue3',
+        'angular-app': 'subapp-angular'
+      }
+      const containerId = idMap[appConfig.name] || 'subapp-viewport'
+      let container = document.getElementById(containerId)
+      if (!container) {
+        await this.$nextTick()
+        container = document.getElementById(containerId)
+      }
+      if (!container) {
+        console.error('Container not found:', containerId)
+        return
+      }
+      // 切换显示状态
+      this.hideAll()
+      container.style.display = ''
+
+      if (this.appCache[appConfig.name]) {
+        // 已经加载过，直接显示
+        return
+      }
+
+      // 首次加载并自动 mount
+      const loadConfig = {
+        name: appConfig.name,
+        entry: appConfig.entry,
+        container,
+        props: appConfig.props || {}
+      }
+      try {
+        const microApp = loadMicroApp(loadConfig, { singular: false })
+        this.appCache[appConfig.name] = microApp
+      } catch (e) {
+        console.error('加载微应用失败:', e)
+      }
+    }
   }
 }
 </script>

@@ -3,9 +3,11 @@ import Router from 'vue-router'
 
 Vue.use(Router)
 
+const isQiankun = window.__POWERED_BY_QIANKUN__
+
 export default new Router({
-  mode: 'history',
-  base: window.__POWERED_BY_QIANKUN__ ? '/vue2' : '/',
+  mode: isQiankun ? 'abstract' : 'history',
+  base: '/',
   routes: [
     {
       path: '/',

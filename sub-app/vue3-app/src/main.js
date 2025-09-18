@@ -1,5 +1,5 @@
 import { createApp } from 'vue'
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory, createMemoryHistory } from 'vue-router'
 import App from './App.vue'
 import Home from './views/Home.vue'
 import About from './views/About.vue'
@@ -20,9 +20,13 @@ function render(props = {}) {
   const base = qiankunWindow.__POWERED_BY_QIANKUN__ ? normalizedBase : '/'
   console.log('vue3 base >>>', base)
 
-  // 创建路由实例
+  // 创建路由实例（在 qiankun 下使用 hash 模式，避免受主应用 URL 影响）
+  const history = qiankunWindow.__POWERED_BY_QIANKUN__
+    ? createMemoryHistory()
+    : createWebHistory(base)
+
   router = createRouter({
-    history: createWebHistory(base),
+    history,
     routes: [
       { path: '/', component: Home },
       { path: '/about', component: About }

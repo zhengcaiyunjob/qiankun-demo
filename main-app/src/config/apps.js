@@ -14,7 +14,7 @@ export const microApps = [
     container: '#subapp-viewport',
     activeRule: '/vue2',
     props: {
-      routerBase: '/vue2'
+      routerBase: '/vue2/'
     }
   },
   {

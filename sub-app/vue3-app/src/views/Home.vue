@@ -1,43 +1,48 @@
 <template>
   <div class="home">
     <h3>Vue3子应用 - 首页</h3>
-    <p>这是基于Vue3 + Vite构建的现代化子应用</p>
-    
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">⚡</div>
-        <h4>极速开发</h4>
-        <p>基于Vite的快速冷启动和热更新</p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">🎯</div>
-        <h4>现代架构</h4>
-        <p>使用Vue3 Composition API和TypeScript</p>
-      </div>
-      
-      <div class="feature-card">
-        <div class="feature-icon">🔗</div>
-        <h4>微前端集成</h4>
-        <p>完美支持qiankun微前端框架</p>
-      </div>
-    </div>
+    <p>示例表单（切换页面后内容保留）</p>
 
-    <div class="tech-stack">
-      <h4>技术栈信息</h4>
-      <div class="tech-list">
-        <span class="tech-tag">Vue 3.3.4</span>
-        <span class="tech-tag">Vite 4.4.5</span>
-        <span class="tech-tag">Vue Router 4</span>
-        <span class="tech-tag">ES Modules</span>
+    <form class="form-card" @submit.prevent>
+      <div class="form-row">
+        <label for="name">姓名</label>
+        <input id="name" v-model="form.name" placeholder="请输入姓名" />
       </div>
-    </div>
+      <div class="form-row">
+        <label for="email">邮箱</label>
+        <input id="email" v-model="form.email" placeholder="请输入邮箱" />
+      </div>
+    </form>
   </div>
+
 </template>
 
 <script>
 export default {
-  name: 'Home'
+  name: 'Home',
+  data() {
+    return {
+      form: {
+        name: '',
+        email: ''
+      },
+      storageKey: null
+    }
+  },
+  created() {
+    // 不使用本地存储，由主应用缓存实例保持状态
+  },
+  watch: {
+    form: {
+      handler() {
+        // no-op
+      },
+      deep: true
+    }
+  },
+  methods: {
+    
+  }
 }
 </script>
 
