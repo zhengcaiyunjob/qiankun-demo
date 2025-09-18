@@ -32,7 +32,6 @@
       <!-- 主内容区域 -->
       <main class="app-main">
         <div id="subapp-viewport"></div>
-        <MicroApp v-if="!hasSubApp" />
       </main>
     </div>
   </div>
@@ -40,104 +39,81 @@
 
 <script>
 import { menuItems, microApps } from '../config/apps'
-import MicroApp from '../views/MicroApp.vue'
+import { loadMicroApp } from 'qiankun'
 
 export default {
   name: 'Layout',
-  components: {
-    MicroApp
-  },
   data() {
     return {
       menuItems,
-      currentPath: '/',
-      currentMicroApp: null,
-      microAppUnmounting: false // 标记是否正在卸载微应用
+      currentMicroApp: null
     }
   },
-  computed: {
-    hasSubApp() {
-      return this.$route.path !== '/'
+  watch: {
+    '$route.path': {
+      handler(newPath) {
+        this.loadAppForRoute(newPath)
+      },
+      immediate: true
     }
   },
+  beforeUnmount() {
+    this.unmountCurrentApp()
+  },
+
   methods: {
     isActive(path) {
       return this.$route.path.startsWith(path)
     },
     navigateTo(path) {
-      console.log('加载子应用:', path)
-      // 直接加载子应用到subapp-viewport，不进行路由跳转
-      this.loadMicroApp(path)
-    },
-    
-    // 加载微应用到主容器
-    async loadMicroApp(path) {
-      console.log('加载子应用:', path)
-      const appName = path.replace('/', '')
-
-      // 1. 首先清理之前可能存在的应用
-      await this.cleanSubAppContainer(); // 确保等待卸载完成
-
-      // 2. 从配置中获取应用信息 (确保 microApps 已定义并导入)
-      const appConfig = microApps.find(app => app.name === `${appName}-app`)
-
-      if (appConfig) {
-        try {
-          // 3. 使用 qiankun 加载微应用
-          const { loadMicroApp } = await import('qiankun')
-
-          // 存储当前应用实例以便后续卸载
-          this.currentMicroApp = loadMicroApp({
-            name: appConfig.name,
-            entry: appConfig.entry,
-            container: '#subapp-viewport', // 确保容器存在
-            props: {
-              routerBase: path,
-              standalone: true
-            }
-          }, {
-            // 可选：配置单个应用的生命周期超时时间
-            timeouts: {
-              bootstrap: {
-                millis: 10000, // 延长 bootstrap 超时时间至 10 秒
-                rejectOnTimeout: false // 超时后不拒绝，继续等待
-              }
-            }
-          });
-
-          // 更新当前路径状态
-          this.currentPath = path
-        } catch (error) {
-          console.error('加载子应用失败:', error)
-        }
-      } else {
-        console.error('未找到应用配置:', appName)
-      }
-    },
-    
-    // 清理子应用容器
-    async cleanSubAppContainer() {
-      // 卸载现有微应用
-      if (this.currentMicroApp) {
-        try {
-          // 等待卸载完成
-          await this.currentMicroApp.unmount();
-          this.currentMicroApp = null;
-        } catch (error) {
-          console.warn('卸载应用时发生错误:', error);
-        }
-      }
-
-      // 清理 DOM 容器
-      const container = document.getElementById('subapp-viewport');
-      if (container) {
-        container.innerHTML = '';
-      }
+      // 使用路由导航而不是直接加载微应用
+      this.$router.push(path)
     },
     handleLogout() {
       console.log('退出系统')
       // 这里实现退出逻辑
       alert('退出系统功能')
+    },
+    
+    async loadAppForRoute(path) {
+      // 卸载当前应用
+      await this.unmountCurrentApp()
+      
+      // 查找匹配的微应用（支持精确匹配和子路由）
+      const appConfig = microApps.find(app => 
+        path === app.activeRule || path.startsWith(app.activeRule + '/')
+      )
+      
+      if (appConfig) {
+        // 确保容器存在
+        this.$nextTick(() => {
+          const container = document.querySelector(appConfig.container)
+          if (container) {
+            try {
+              this.currentMicroApp = loadMicroApp(appConfig)
+            } catch (error) {
+              console.error('加载微应用失败:', error)
+            }
+          }
+        })
+      }
+    },
+    
+    async unmountCurrentApp() {
+      if (this.currentMicroApp) {
+        try {
+          await this.currentMicroApp.unmount()
+          this.currentMicroApp = null
+        } catch (error) {
+          console.warn('卸载应用时发生错误:', error)
+        }
+        
+        // 清理容器
+        const container = document.getElementById('subapp-viewport')
+        if (container) {
+          container.innerHTML = ''
+        }
+      }
     }
   }
 }

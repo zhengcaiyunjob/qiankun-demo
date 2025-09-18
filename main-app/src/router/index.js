@@ -12,19 +12,35 @@ const routes = [
     component: Layout,
     // redirect: '/vue2', // 默认重定向到Vue2应用
     children: [
-      // 微应用路由占位 - 这些路由由qiankun处理实际内容
+      // 精确匹配路由
       { 
-        path: '/vue2*', 
+        path: '/vue2', 
         component: () => import('../views/MicroApp.vue'),
         meta: { title: 'Vue2应用' }
       },
       { 
-        path: '/vue3*', 
+        path: '/vue3', 
         component: () => import('../views/MicroApp.vue'),
         meta: { title: 'Vue3应用' }
       },
       { 
-        path: '/angular*', 
+        path: '/angular', 
+        component: () => import('../views/MicroApp.vue'),
+        meta: { title: 'Angular应用' }
+      },
+      // 通配符路由，处理子路由
+      { 
+        path: '/vue2/*', 
+        component: () => import('../views/MicroApp.vue'),
+        meta: { title: 'Vue2应用' }
+      },
+      { 
+        path: '/vue3/*', 
+        component: () => import('../views/MicroApp.vue'),
+        meta: { title: 'Vue3应用' }
+      },
+      { 
+        path: '/angular/*', 
         component: () => import('../views/MicroApp.vue'),
         meta: { title: 'Angular应用' }
       }
