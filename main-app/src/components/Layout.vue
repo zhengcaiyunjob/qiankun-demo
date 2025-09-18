@@ -51,7 +51,8 @@ export default {
   },
   watch: {
     '$route.path': {
-      handler(newPath) {
+      handler(newPath, oldPath) {
+        console.log('path changed', newPath, oldPath)
         this.loadAppForRoute(newPath)
       },
       immediate: true
@@ -66,8 +67,26 @@ export default {
       return this.$route.path.startsWith(path)
     },
     navigateTo(path) {
-      // 使用路由导航而不是直接加载微应用
-      this.$router.push(path)
+      // 确保路径以/开头
+      const normalizedPath = path.startsWith('/') ? path : `/${path}`
+      console.log('Navigating to:', normalizedPath)
+      
+      // 先加载应用再跳转路由
+      const appConfig = microApps.find(app => 
+        normalizedPath === app.activeRule || normalizedPath.startsWith(`${app.activeRule}/`)
+      )
+      
+      if (appConfig) {
+        this.loadAppForRoute(normalizedPath).then(() => {
+          this.$router.push(normalizedPath).catch(err => {
+            console.log('Router push error:', err)
+          })
+        })
+      } else {
+        this.$router.push(normalizedPath).catch(err => {
+          console.log('Router push error:', err)
+        })
+      }
     },
     handleLogout() {
       console.log('退出系统')
@@ -76,26 +95,38 @@ export default {
     },
     
     async loadAppForRoute(path) {
+      console.log('Loading app for path:', path)
       // 卸载当前应用
       await this.unmountCurrentApp()
       
+      // 标准化路径，确保以/开头
+      const normalizedPath = path.startsWith('/') ? path : `/${path}`
+      
       // 查找匹配的微应用（支持精确匹配和子路由）
       const appConfig = microApps.find(app => 
-        path === app.activeRule || path.startsWith(app.activeRule + '/')
+        normalizedPath === app.activeRule || normalizedPath.startsWith(`${app.activeRule}/`)
       )
       
       if (appConfig) {
+        console.log('Found matching app config:', appConfig.name)
         // 确保容器存在
-        this.$nextTick(() => {
-          const container = document.querySelector(appConfig.container)
-          if (container) {
-            try {
-              this.currentMicroApp = loadMicroApp(appConfig)
-            } catch (error) {
-              console.error('加载微应用失败:', error)
-            }
+        const container = document.querySelector(appConfig.container)
+        if (container) {
+          try {
+            console.log('Loading micro app:', appConfig.name)
+            this.currentMicroApp = loadMicroApp(appConfig)
+            return Promise.resolve()
+          } catch (error) {
+            console.error('加载微应用失败:', error)
+            return Promise.reject(error)
           }
-        })
+        } else {
+          console.error('Container not found:', appConfig.container)
+          return Promise.reject(new Error('Container not found'))
+        }
+      } else {
+        console.warn('No matching app config found for path:', normalizedPath)
+        return Promise.resolve()
       }
     },
     
