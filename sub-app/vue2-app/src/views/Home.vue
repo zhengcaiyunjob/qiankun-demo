@@ -1,4 +1,4 @@
-<template>
+<template xmlns="http://www.w3.org/1999/html">
   <div class="home">
     <h3>Vue2子应用 - 首页</h3>
     <p>这是基于Vue2 + Webpack5构建的子应用</p>
@@ -19,6 +19,10 @@
           <li>与主应用无缝集成</li>
         </ul>
       </div>
+    </div>
+    <div>
+      <label>name</label>
+      <input type="text" placeholder="请输入">
     </div>
   </div>
 </template>

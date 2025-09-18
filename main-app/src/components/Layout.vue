@@ -52,7 +52,11 @@ export default {
       menuItems,
       currentPath: '/',
       currentMicroApp: null,
-      microAppUnmounting: false // 标记是否正在卸载微应用
+      microAppUnmounting: false,// 标记是否正在卸载微应用
+      microApps: {}, // 存储所有微应用实例
+      cachedApps: new Map(), // 缓存已加载的应用
+      activeApp: null // 当前活跃应用
+
     }
   },
   computed: {
@@ -69,11 +73,51 @@ export default {
       // 直接加载子应用到subapp-viewport，不进行路由跳转
       this.loadMicroApp(path)
     },
+    // 显示已缓存的应用
+    showCachedApp(appKey) {
+      if (this.activeApp) {
+        this.hideApp(this.activeApp)
+      }
+
+      // 显示缓存的应用容器
+      const appContainer = this.cachedApps.get(appKey)
+      if (appContainer) {
+        appContainer.style.display = 'block'
+        this.activeApp = appKey
+      }
+    },
+    // 隐藏应用（但不卸载）
+    hideApp(appKey) {
+      const appInstance = this.microApps[appKey]
+      if (appInstance) {
+        // 创建应用容器副本用于缓存
+        const originalContainer = document.getElementById('subapp-viewport')
+        const clonedContainer = originalContainer.cloneNode(true)
+        clonedContainer.style.display = 'none'
+
+        // 保存到缓存
+        this.cachedApps.set(appKey, clonedContainer)
+
+        // 清空原始容器
+        originalContainer.innerHTML = ''
+      }
+    },
     
     // 加载微应用到主容器
     async loadMicroApp(path) {
       console.log('加载子应用:', path)
-      const appName = path.replace('/', '')
+      const appName = path.replace('/', '');
+      const appkey = `${appName}-app`;
+      // 如果应用已缓存，直接显示
+      if (this.cachedApps.has(appkey)) {
+        this.showCachedApp(appkey)
+        this.currentPath = path
+        return
+      }
+      // 隐藏当前活跃应用
+      if (this.activeApp) {
+        this.hideApp(this.activeApp)
+      }
 
       // 1. 首先清理之前可能存在的应用
       await this.cleanSubAppContainer(); // 确保等待卸载完成
@@ -236,7 +280,4 @@ export default {
   background: #f0f2f5;
 }
 
-#subapp-viewport {
-  height: 100%;
-}
 </style>
