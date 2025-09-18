@@ -1,7 +1,7 @@
 import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router'
-import { initGlobalState } from 'qiankun'
+import { initGlobalState, registerMicroApps, start } from 'qiankun'
 import { microApps } from './config/apps'
 
 // 初始化状态
@@ -25,3 +25,18 @@ const app = createApp(App)
 
 app.use(router)
 app.mount('#app')
+
+// 注册微应用并启动 qiankun（基于路由的激活）
+registerMicroApps(
+  microApps.map(app => ({
+    name: app.name,
+    entry: app.entry,
+    container: app.container,
+    activeRule: app.activeRule,
+    props: app.props || {}
+  }))
+)
+
+start({
+  prefetch: false
+})

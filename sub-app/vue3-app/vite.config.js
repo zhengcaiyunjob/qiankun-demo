@@ -28,7 +28,8 @@ export default defineConfig({
     lib: {
       entry: './src/main.js',
       name: 'vue3-app',
-      fileName: 'vue3-app'
+      fileName: 'vue3-app',
+      formats: ['es', 'umd']
     },
     rollupOptions: {
       external: ['vue'],

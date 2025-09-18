@@ -23,7 +23,7 @@ export const microApps = [
     container: '#subapp-viewport',
     activeRule: '/vue3',
     props: {
-      routerBase: '/vue3'
+      routerBase: '/vue3/'
     }
   },
   {
